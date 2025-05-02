@@ -63,4 +63,4 @@ jobs:
           # Push the Docker image with the commit hash tag
           docker push ${{ secrets.DOCKER_USERNAME }}/node-app:${{ env.VERSION_TAG }}  # Push the versioned tag
           # Push the 'latest' tag to Docker Hub
-          docker push ${{ secrets.DOCKER_USERNAME }}/node-app:latest  # Push the 'latest' tag
+          #docker push ${{ secrets.DOCKER_USERNAME }}/node-app:latest  # Push the 'latest' tag
