@@ -64,9 +64,3 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/node-app:${{ env.VERSION_TAG }}  # Push the versioned tag
           # Push the 'latest' tag to Docker Hub
           docker push ${{ secrets.DOCKER_USERNAME }}/node-app:latest  # Push the 'latest' tag
-
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4  # Upload build artifacts to GitHub for further use
-        with:
-          name: node-app-artifact  # Name of the artifact
-          path: .  # Path to the artifact to upload
