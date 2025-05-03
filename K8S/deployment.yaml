@@ -1,19 +1,20 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: apps/v1                   # API version for Deployment resource
+kind: Deployment                      # This is a Deployment (manages ReplicaSets and Pods)
 metadata:
-  name: node-app
+  name: node-app                      # Name of the Deployment object
 spec:
-  replicas: 1
+  replicas: 1                         # Number of pod replicas to run
   selector:
     matchLabels:
-      app: node-app
-  template:
+      app: node-app                   # Label selector to match pods managed by this Deployment
+  template:                           # Pod template (defines what the Pod should look like)
     metadata:
       labels:
-        app: node-app
+        app: node-app                 # Labels applied to the pods (must match selector above)
     spec:
-      containers:
-      - name: node-app
-        image: <docker-username>/node-app:latest  # ArgoCD will update this tag
+      containers:                     # List of containers to run in the pod
+      - name: node-app                # Name of the container
+        image: veerannadoc/node-app:e33a6b0  # Docker image to use for this container (tagged build)
         ports:
-        - containerPort: 3000
+        - containerPort: 3000        # Port the container listens on (internal to the pod)
+

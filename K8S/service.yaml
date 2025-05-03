@@ -3,10 +3,12 @@ kind: Service
 metadata:
   name: node-app-service
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: node-app
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 3000
+      port: 80          # Port exposed inside the cluster
+      targetPort: 3000  # Port your Node.js app listens on
+      nodePort: 30080   # Optional: External port on the node (must be between 30000–32767)
+
