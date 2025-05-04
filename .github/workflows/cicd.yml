@@ -67,7 +67,7 @@ jobs:
 
           VERSION_TAG=${{ env.VERSION_TAG }}  # Use version tag from earlier step
 
-          sed -i "s|image: .*/node-app:.*|image: ${{ secrets.DOCKER_USERNAME }}/node-app:$VERSION_TAG|g" k8s/deployment.yaml  # Replace image tag in YAML
+          sed -i "s|image: .*/node-app:.*|image: ${{ secrets.DOCKER_USERNAME }}/node-app:$VERSION_TAG|g" K8S/deployment.yaml  # Replace image tag in YAML
 
           git add k8s/deployment.yaml  # Add the modified YAML to Git index
           git commit -m "chore: update image tag to $VERSION_TAG"  # Commit the change
