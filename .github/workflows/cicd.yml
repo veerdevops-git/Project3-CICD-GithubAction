@@ -71,4 +71,4 @@ jobs:
 
           git add K8S/deployment.yaml  # Add the modified YAML to Git index
           git commit -m "chore: update image tag to $VERSION_TAG"  # Commit the change
-          git push origin main  # Push the change to the 'main' branch
+          git push https://github.com/${{ github.repository }}.git HEAD:main
