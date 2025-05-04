@@ -64,14 +64,17 @@ jobs:
         run: |
           git config --global user.name "github-actions"  # Set global Git username
           git config --global user.email "github-actions@github.com"  # Set global Git email
-
+        
           VERSION_TAG=${{ env.VERSION_TAG }}  # Use version tag from earlier step
-
-          sed -i "s|image: .*/node-app:.*|image: ${{ secrets.DOCKER_USERNAME }}/node-app:$VERSION_TAG|g" K8S/deployment.yaml  # Replace image tag in YAML
-
+        
+          # Replace image tag in YAML using sed
+          sed -i "s|image: .*/node-app:.*|image: ${{ secrets.DOCKER_USERNAME }}/node-app:$VERSION_TAG|g" K8S/deployment.yaml  
+        
           git add K8S/deployment.yaml  # Add the modified YAML to Git index
           git commit -m "chore: update image tag to $VERSION_TAG"  # Commit the change
+        
           # Use the GITHUB_TOKEN for authentication and push the changes back to the repository
-          git push https://github.com/${{ github.repository }}/HEAD:main
+          git push https://github.com/${{ github.repository }}.git HEAD:main
         env:
-           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub Actions automatically provides this token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub Actions automatically provides this token
+        
