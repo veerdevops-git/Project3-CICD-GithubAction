@@ -74,7 +74,7 @@ jobs:
           git commit -m "chore: update image tag to $VERSION_TAG"  # Commit the change
         
           # Use the GITHUB_TOKEN for authentication and push the changes back to the repository
-          git push https://github.com/${{ github.repository }}.git HEAD:main
+          git push https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub Actions automatically provides this token
         
