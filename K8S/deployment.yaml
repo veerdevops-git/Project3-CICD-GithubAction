@@ -14,7 +14,7 @@ spec:
     spec:
       containers:                     # List of containers to run in the pod
       - name: node-app                # Name of the container
-        image: veerannadoc/node-app:e33a6b0  # Docker image to use for this container (tagged build)
+        image: veerannadoc/node-app:49ca84c
         ports:
         - containerPort: 3000        # Port the container listens on (internal to the pod)
 
