@@ -1,66 +1,74 @@
-name: CI/CD Pipeline  # Name of the workflow
+name: CI/CD Pipeline  # Name of the workflow shown in GitHub Actions UI
 
 on:
   push:
-    branches: [ main ]  # Trigger the pipeline when code is pushed to the 'main' branch
+    branches: [ main ]  # Trigger this workflow when a push is made to the 'main' branch
 
 jobs:
-  build-test:
-    runs-on: ubuntu-latest  # Run the job on the latest Ubuntu environment
+  build-test:  # First job to build and test the application
+    runs-on: ubuntu-latest  # Use the latest version of Ubuntu as the runner environment
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3  # Step to check out the code from the repository
+      - name: Checkout Code  # Step to pull code from the repository
+        uses: actions/checkout@v3  # Use the GitHub-provided checkout action
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3  # Set up Node.js environment
+      - name: Set up Node.js  # Step to set up Node.js for building and testing
+        uses: actions/setup-node@v3  # Use GitHub action to install Node.js
         with:
-          node-version: 18  # Specify the Node.js version to use (v18)
+          node-version: 18  # Use Node.js version 18
 
-      - name: Install Dependencies
-        run: npm install  # Run npm install to install the dependencies listed in package.json
+      - name: Install Dependencies  # Step to install npm dependencies
+        run: npm install  # Runs 'npm install' to install packages from package.json
 
-      - name: Run Tests
-        run: npm test  # Run tests using npm (assumes tests are defined in package.json)
+      - name: Run Tests  # Optional step to run tests (you can define tests in package.json)
+        run: npm test  # Runs 'npm test'
 
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4  # Upload build artifacts for further steps
+      - name: Upload Build Artifact  # Step to upload project files for other jobs if needed
+        uses: actions/upload-artifact@v4  # GitHub-provided action to upload build artifacts
         with:
-          name: node-app-artifact  # Name of the artifact
-          path: .  # Path to the build files to upload
+          name: node-app-artifact  # Name of the uploaded artifact
+          path: .  # Upload everything from the root directory
 
-  docker:
-    needs: build-test  # This job will run after the build-test job has completed successfully
-    runs-on: ubuntu-latest  # Run this job on the latest Ubuntu environment
+  docker:  # Second job to build and push Docker image, and update Kubernetes deployment
+    needs: build-test  # Run this job only after the build-test job is successful
+    runs-on: ubuntu-latest  # Use the latest Ubuntu environment
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3  # Check out the code again for the docker build
+      - name: Checkout Code  # Pull code again because jobs don't share files unless using artifacts
+        uses: actions/checkout@v3  # GitHub checkout action
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3  # Log in to Docker Hub to push images
+      - name: Log in to Docker Hub  # Step to authenticate to Docker Hub
+        uses: docker/login-action@v3  # GitHub action to login to Docker
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}  # Use the secret for Docker Hub username
-          password: ${{ secrets.DOCKER_PASSWORD }}  # Use the secret for Docker Hub password
+          username: ${{ secrets.DOCKER_USERNAME }}  # Use Docker username stored as a secret
+          password: ${{ secrets.DOCKER_PASSWORD }}  # Use Docker password stored as a secret
 
-      - name: Set version tag for Docker image
-        id: set_version  # Set the version tag based on commit hash
+      - name: Set version tag for Docker image  # Step to generate a unique image tag from commit hash
+        id: set_version  # Assign an ID to this step so outputs can be referenced later
         run: |
-          # Generate a version tag using the short Git commit hash
-          VERSION_TAG=$(echo "${{ github.sha }}" | head -c 7) # Get the first 7 characters of the commit hash
-          echo "VERSION_TAG=$VERSION_TAG" >> $GITHUB_ENV  # Save the version tag to GitHub environment
-          echo "Generated Docker Image Tag: $VERSION_TAG"  # Output the generated version tag for debugging
+          VERSION_TAG=$(echo "${{ github.sha }}" | head -c 7)  # Use the first 7 chars of the commit SHA
+          echo "VERSION_TAG=$VERSION_TAG" >> $GITHUB_ENV  # Save the version tag to GitHub Actions environment
+          echo "Generated Docker Image Tag: $VERSION_TAG"  # Print tag for visibility
 
-      - name: Build Docker Image
+      - name: Build Docker Image  # Step to build Docker image using Dockerfile
         run: |
-          # Build the Docker image with the generated version tag
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/node-app:${{ env.VERSION_TAG }} .  # Build image with commit hash tag
-          # Optionally, tag the image as 'latest' as well
-          docker tag ${{ secrets.DOCKER_USERNAME }}/node-app:${{ env.VERSION_TAG }} ${{ secrets.DOCKER_USERNAME }}/node-app:latest  # Tag image with 'latest'
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/node-app:${{ env.VERSION_TAG }} .  # Build image with tag
+          docker tag ${{ secrets.DOCKER_USERNAME }}/node-app:${{ env.VERSION_TAG }} ${{ secrets.DOCKER_USERNAME }}/node-app:latest  # Also tag it as latest
 
-      - name: Push Docker Image
+      - name: Push Docker Image  # Step to push Docker image to Docker Hub
         run: |
-          # Push the Docker image with the commit hash tag
-          docker push ${{ secrets.DOCKER_USERNAME }}/node-app:${{ env.VERSION_TAG }}  # Push the versioned tag
-          # Push the 'latest' tag to Docker Hub
-          #docker push ${{ secrets.DOCKER_USERNAME }}/node-app:latest  # Push the 'latest' tag
+          docker push ${{ secrets.DOCKER_USERNAME }}/node-app:${{ env.VERSION_TAG }}  # Push versioned image
+          # docker push ${{ secrets.DOCKER_USERNAME }}/node-app:latest  # (Optional) Push latest tag
+
+      - name: Update image tag in deployment.yaml and push to Git  # Step to update Kubernetes YAML and push changes
+        run: |
+          git config --global user.name "github-actions"  # Set global Git username
+          git config --global user.email "github-actions@github.com"  # Set global Git email
+
+          VERSION_TAG=${{ env.VERSION_TAG }}  # Use version tag from earlier step
+
+          sed -i "s|image: .*/node-app:.*|image: ${{ secrets.DOCKER_USERNAME }}/node-app:$VERSION_TAG|g" k8s/deployment.yaml  # Replace image tag in YAML
+
+          git add k8s/deployment.yaml  # Add the modified YAML to Git index
+          git commit -m "chore: update image tag to $VERSION_TAG"  # Commit the change
+          git push origin main  # Push the change to the 'main' branch
