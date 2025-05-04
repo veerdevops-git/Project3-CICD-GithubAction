@@ -69,6 +69,6 @@ jobs:
 
           sed -i "s|image: .*/node-app:.*|image: ${{ secrets.DOCKER_USERNAME }}/node-app:$VERSION_TAG|g" K8S/deployment.yaml  # Replace image tag in YAML
 
-          git add k8s/deployment.yaml  # Add the modified YAML to Git index
+          git add K8S/deployment.yaml  # Add the modified YAML to Git index
           git commit -m "chore: update image tag to $VERSION_TAG"  # Commit the change
           git push origin main  # Push the change to the 'main' branch
