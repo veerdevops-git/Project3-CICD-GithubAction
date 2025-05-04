@@ -14,8 +14,8 @@ spec:
         app: jenkins-server
     spec:
       securityContext:
-            fsGroup: 1000 
-            runAsUser: 1000
+        fsGroup: 1000
+        runAsUser: 1000
       serviceAccountName: jenkins-admin
       containers:
         - name: jenkins
@@ -23,10 +23,8 @@ spec:
           resources:
             limits:
               memory: "2Gi"
-              cpu: "1000m"
             requests:
               memory: "500Mi"
-              cpu: "500m"
           ports:
             - name: httpport
               containerPort: 8080
@@ -50,8 +48,8 @@ spec:
             failureThreshold: 3
           volumeMounts:
             - name: jenkins-data
-              mountPath: /var/jenkins_home         
+              mountPath: /var/jenkins_home
       volumes:
         - name: jenkins-data
           persistentVolumeClaim:
-              claimName: jenkins-pv-claim
+            claimName: jenkins-pv-claim
