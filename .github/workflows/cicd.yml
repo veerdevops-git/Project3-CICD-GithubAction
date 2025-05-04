@@ -71,4 +71,7 @@ jobs:
 
           git add K8S/deployment.yaml  # Add the modified YAML to Git index
           git commit -m "chore: update image tag to $VERSION_TAG"  # Commit the change
-          git push https://github.com/${{ github.repository }}.git HEAD:main
+          # Use the GITHUB_TOKEN for authentication and push the changes back to the repository
+          git push https://github.com/${{ github.repository }}/HEAD:main
+        env:
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub Actions automatically provides this token
