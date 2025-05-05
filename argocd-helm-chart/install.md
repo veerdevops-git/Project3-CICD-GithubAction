@@ -1,5 +1,7 @@
 # Makefile
 install:
+
+create folder called : files 
 	curl -L https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml -o files/install.yaml
 	helm install argocd-custom .
 
