@@ -14,7 +14,7 @@ spec:
     spec:
       containers:                     # List of containers to run in the pod
       - name: node-app                # Name of the container
-        image: veerannadoc/node-app:2230c9a
+        image: veerannadoc/node-app:2c41108
         ports:
         - containerPort: 3000        # Port the container listens on (internal to the pod)
 
