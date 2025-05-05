@@ -1,0 +1,22 @@
+namespace: devops-tools
+image:
+  repository: jenkins/jenkins
+  tag: lts
+  pullPolicy: IfNotPresent
+
+resources:
+  limits:
+    memory: "2Gi"
+  requests:
+    memory: "500Mi"
+
+storage:
+  className: local-storage
+  size: 1Gi
+  path: /mnt
+  node: node01
+
+service:
+  type: NodePort
+  port: 8080
+  nodePort: 32000

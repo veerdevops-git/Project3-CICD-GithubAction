@@ -1,0 +1,4 @@
+apiVersion: v2
+name: jenkins-helm
+version: 0.1.0
+description: A Helm chart to deploy Jenkins on Kubernetes
