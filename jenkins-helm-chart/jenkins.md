@@ -20,3 +20,7 @@ If required, get pod logs to find the initial admin password:
 
 POD=$(kubectl get pods -n devops-tools -l app=jenkins-server -o jsonpath="{.items[0].metadata.name}")
 kubectl logs $POD -n devops-tools
+
+or 
+
+ kkubectl exec -n devops-tools -it <podname> -- /bin/bash
