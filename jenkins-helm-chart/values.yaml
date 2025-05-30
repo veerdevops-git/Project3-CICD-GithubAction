@@ -1,6 +1,6 @@
 namespace: devops-tools
 image:
-  repository: jenkins/jenkins
+  repository: jenkins/jenkins:lts
   tag: lts
   pullPolicy: IfNotPresent
 
